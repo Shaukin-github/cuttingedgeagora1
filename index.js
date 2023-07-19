@@ -41,7 +41,7 @@ await dbConnect();
 
 app.post('/login', async (req, res) => {
   try {
-    const user = await User.findOne({ account: req.body.userAccount });
+    const user = await User.findOne({ account: req.body.username });
 
     if (user) {
       const userToken = ChatTokenBuilder.buildUserToken(
@@ -71,8 +71,8 @@ app.post('/login', async (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
-    const account = req.body.userAccount;
-    const password = req.body.userPassword;
+    const account = req.body.username;
+    const password = req.body.password;
     const chatUsername = account;
     const chatPassword = password;
     const chatNickname = account;
