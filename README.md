@@ -23,7 +23,7 @@ const userToken = ChatTokenBuilder.buildUserToken(appId, appCertificate, <user's
 
 ## Usage
 ### Fill in with your information
-Open *auth-demo.js* and replace `<YOUR APP ID>` and `<YOUR APP CERTIFICATE>` with your value.  
+Open *index.js* and replace `<YOUR APP ID>` and `<YOUR APP CERTIFICATE>` with your value.  
 And also replace `<YOUR RestApiHost>`, `<YOUR OrgName>` and `<YOUR AppName>`.  
 
 ```

@@ -1,1 +1,1 @@
-web: node auth-demo.js
+web: node index.js
