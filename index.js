@@ -10,6 +10,7 @@ import User from './models/User';
 import Chat from './models/Chat';
 import dbConnect from './utils/dbConnect';
 import multer from 'multer';
+import axios from 'axios';
 
 const app = express();
 const port = 4000;
@@ -121,6 +122,65 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
+
+// Add this route above app.listen()
+
+app.post('/resetPassword', async (req, res) => {
+  try {
+    const { account, newPassword } = req.body;
+    // Check if the user exists with the provided email
+    const user = await User.findOne({ account: req.body.username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the user's password in the database with the new password
+    user.password = newPassword;
+    await user.save();
+    
+    const expirationTimeInSeconds = 3600; // 1 hour
+    const currentTimestampInSeconds = Math.floor(Date.now() / 1000);
+    const expirationTimestampInSeconds =
+      currentTimestampInSeconds + expirationTimeInSeconds;
+    const appToken = agoraToken.ChatTokenBuilder.buildAppToken(
+      appId,
+      appCertificate,
+      expirationTimestampInSeconds
+    );
+
+    // Replace the placeholders with your actual values
+    const apiUrl = 'http://a41.chat.agora.io/41960726/1129223/users/user1/password';
+    
+    const requestData = {
+      newpassword: newPassword,
+    };
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${appToken}`,
+      },
+    };
+    
+    axios.put(apiUrl, requestData, config)
+      .then((response) => {
+        console.log('Password reset successful:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error resetting password:', error.response.data);
+      });
+    
+    // Optionally, you can invalidate any existing sessions or tokens for the user to enforce the password change.
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 app.get('/token', (req, res) => {
   const channelName = req.query.channelName || 'default';
