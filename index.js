@@ -301,7 +301,7 @@ app.post('/chat', upload.single('file'), async (req, res) => {
 app.put('/chat/:id', async (req, res) => {
   try {
     const chatId = req.params.id;
-    const { callEndTime,callDuration,recordingUrl } = req.body;
+    const { callStartTime,callEndTime,callDuration,recordingUrl } = req.body;
      
     
     // Find the chat entry in the database by its ID
@@ -312,6 +312,7 @@ app.put('/chat/:id', async (req, res) => {
     }
 
     // Update the chat message
+    chat.callStartTime = callStartTime;
     chat.callEndTime = callEndTime;
     chat.callDuration = callDuration;
     chat.recordingUrl = recordingUrl;
