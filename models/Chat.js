@@ -7,6 +7,10 @@ const ChatSchema = new mongoose.Schema({
   fileURL: String,
   fileName: String,
   type:String,
+  callStartTime:Date,
+  callEndTime:Date,
+  callDuration:String,
+  recordingUrl: String,
   createdAt:Date
 });
 

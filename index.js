@@ -261,6 +261,32 @@ app.post('/chat', upload.single('file'), async (req, res) => {
         createdAt
       });
       await chat.save();
+    } else if (type === 'audio') {
+      // Save text chat to the database
+      const chat = new Chat({
+        senderId,
+        receiverId,
+        message,
+        type,
+        callStartTime,
+        callEndTime,
+        callDuration,
+        createdAt
+      });
+      await chat.save();
+    } else if (type === 'video') {
+      // Save text chat to the database
+      const chat = new Chat({
+        senderId,
+        receiverId,
+        message,
+        type,
+        callStartTime,
+        callEndTime,
+        callDuration,
+        createdAt
+      });
+      await chat.save();
     } else {
       return res.status(400).json({ success: false, message: 'Invalid chat type' });
     }
@@ -271,6 +297,33 @@ app.post('/chat', upload.single('file'), async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
+
+app.put('/chat/:id', async (req, res) => {
+  try {
+    const chatId = req.params.id;
+    const { callEndTime,callDuration,recordingUrl } = req.body;
+     
+    
+    // Find the chat entry in the database by its ID
+    const chat = await Chat.findById(chatId);
+
+    if (!chat) {
+      return res.status(404).json({ success: false, message: 'Chat not found' });
+    }
+
+    // Update the chat message
+    chat.callEndTime = callEndTime;
+    chat.callDuration = callDuration;
+    chat.recordingUrl = recordingUrl;
+    await chat.save();
+
+    res.status(200).json({ success: true, message: 'Chat updated successfully', code: 'RES_OK' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false });
+  }
+});
+
 
 app.get('/chat', async (req, res) => {
   try {
@@ -285,7 +338,12 @@ app.get('/chat', async (req, res) => {
 
     if (senderId && receiverId) {
       // Get chats where senderId and receiverId match
-      chats = await Chat.find({ "senderId": senderId, "receiverId":receiverId });
+      chats = await Chat.find({
+        $or: [
+          { "senderId": senderId, "receiverId": receiverId },
+          { "senderId": receiverId, "receiverId": senderId }
+        ]
+      });
     } else if (senderId) {
       // Get chats where senderId matches
       chats = await Chat.find({ "senderId": senderId });
