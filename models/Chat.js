@@ -6,6 +6,7 @@ const ChatSchema = new mongoose.Schema({
   message: String,
   fileURL: String,
   fileName: String,
+  groupId: String,
   type:String,
   callStartTime:Date,
   callEndTime:Date,

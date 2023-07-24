@@ -226,7 +226,8 @@ app.get('/chatToken', (req, res) => {
 // API endpoint to save chat data
 app.post('/chat', upload.single('file'), async (req, res) => {
   try {
-    const { senderId, receiverId, message, type } = req.body;
+    const { senderId, receiverId, message, type,groupId,callStartTime,callEndTime,
+      callDuration,recordingUrl} = req.body;
     let fileURL = '';
     let fileName = '';
     let createdAt= new Date();
@@ -238,7 +239,8 @@ app.post('/chat', upload.single('file'), async (req, res) => {
         receiverId,
         message,
         type,
-        createdAt
+        createdAt,
+        groupId
       });
       await chat.save();
     } else if (type === 'file') {
@@ -258,7 +260,8 @@ app.post('/chat', upload.single('file'), async (req, res) => {
         fileURL,
         fileName,
         type,
-        createdAt
+        createdAt,
+        groupId
       });
       await chat.save();
     } else if (type === 'audio') {
@@ -271,7 +274,8 @@ app.post('/chat', upload.single('file'), async (req, res) => {
         callStartTime,
         callEndTime,
         callDuration,
-        createdAt
+        createdAt,
+        groupId
       });
       await chat.save();
     } else if (type === 'video') {
@@ -284,7 +288,8 @@ app.post('/chat', upload.single('file'), async (req, res) => {
         callStartTime,
         callEndTime,
         callDuration,
-        createdAt
+        createdAt,
+        groupId
       });
       await chat.save();
     } else {
@@ -328,7 +333,7 @@ app.put('/chat/:id', async (req, res) => {
 
 app.get('/chat', async (req, res) => {
   try {
-    const { senderId, receiverId } = req.query;
+    const { senderId, receiverId,groupId } = req.query;
     // Check if either senderId or receiverId is provided
     if (!senderId && !receiverId) {
       return res.status(400).json({ success: false, message: 'Please provide senderId or receiverId' });
@@ -351,7 +356,10 @@ app.get('/chat', async (req, res) => {
     } else if (receiverId) {
       // Get chats where receiverId matches
       chats = await Chat.find({ "receiverId":receiverId });
-    }
+    } else if(groupId){
+      // Get chats where receiverId matches
+      chats = await Chat.find({ "groupId":groupId });
+    } 
 
     res.status(200).json({ success: true, data: chats });
   } catch (error) {
