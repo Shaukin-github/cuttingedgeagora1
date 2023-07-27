@@ -335,10 +335,11 @@ app.get('/chat', async (req, res) => {
   try {
     const { senderId, receiverId,groupId } = req.query;
     // Check if either senderId or receiverId is provided
+    /*
     if (!senderId && !receiverId) {
       return res.status(400).json({ success: false, message: 'Please provide senderId or receiverId' });
     }
-
+    */
 
     let chats;
 
