@@ -90,7 +90,7 @@ app.post('/loginTest', async (req, res) => {
         chatUsername: user.chatUsername,
         accessToken: makeid(100)
       });
-    } else {
+    } else { 
       res.status(401).json({
         message: 'Your account or password is wrong'
       });
