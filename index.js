@@ -11,8 +11,14 @@ import Chat from './models/Chat';
 import dbConnect from './utils/dbConnect';
 import multer from 'multer';
 import axios from 'axios';
+import { Server } from 'socket.io';
+import http from 'http';
 
 const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server);
+
 const port = 4000;
 
 const storage = multer.diskStorage({
@@ -39,11 +45,14 @@ app.use(express.json());
 
 // Connect to the database
 await dbConnect();
-
+const uidString = "527841"; // Your user ID as a string
+const uid = parseInt(uidString, 10); // Convert the string to an integer
+console.log(uid);
 app.post('/login', async (req, res) => {
   try {
+    console.log(req.body);
     const user = await User.findOne({ account: req.body.username });
-
+   
     if (user) {
       const userToken = ChatTokenBuilder.buildUserToken(
         appId,
@@ -69,6 +78,40 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
+app.post('/loginTest', async (req, res) => {
+  try {
+    console.log(req.body);
+    const user = await User.findOne({ account: req.body.username });
+    
+    if (user) {
+
+      res.status(200).json({
+        code: 'RES_OK',
+        chatUsername: user.chatUsername,
+        accessToken: makeid(100)
+      });
+    } else {
+      res.status(401).json({
+        message: 'Your account or password is wrong'
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false });
+  }
+});
+
+function makeid(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
 
 app.post('/register', async (req, res) => {
   try {
@@ -110,6 +153,31 @@ app.post('/register', async (req, res) => {
       password: password,
       chatUsername: chatUsername,
       userUuid: result.entities[0].uuid
+    });
+
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: 'User Registered Successfully!', code: 'RES_OK' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false });
+  }
+});
+
+app.post('/registerTest', async (req, res) => {
+  try {
+    const account = req.body.username;
+    const password = req.body.password;
+    const chatUsername = account;
+    const chatPassword = password;
+    const chatNickname = account;
+    
+    const user = new User({
+      account: account,
+      password: password,
+      chatUsername: chatUsername
     });
 
     await user.save();
@@ -370,6 +438,25 @@ app.get('/chat', async (req, res) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
+
+io.on('connection', (socket) => {
+  console.log('New client connected.');
+
+  socket.emit('welcome', 'Welcome to the chat!');
+
+  socket.on('message', (data) => {
+    console.log('Received message:', data);
+    io.emit('message', data); // Broadcast the message to all clients
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected.');
+  });
+});
+
+server.listen(port, () => {
+  console.log(`Socket.IO server listening on port ${port}`);
 });
