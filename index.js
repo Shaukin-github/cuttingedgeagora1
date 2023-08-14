@@ -11,13 +11,13 @@ import Chat from './models/Chat';
 import dbConnect from './utils/dbConnect';
 import multer from 'multer';
 import axios from 'axios';
-import { Server } from 'socket.io';
+// import { Server } from 'socket.io';
 import http from 'http';
 
 const app = express();
 
-const server = http.createServer(app);
-const io = new Server(server);
+//const server = http.createServer(app);
+//const io = new Server(server);
 
 const port = 4000;
 
@@ -438,25 +438,25 @@ app.get('/chat', async (req, res) => {
 });
 
 
-// app.listen(port, () => {
-//   console.log(`Server running on port ${port}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
+// io.on('connection', (socket) => {
+//   console.log('New client connected.');
+
+//   socket.emit('welcome', 'Welcome to the chat!');
+
+//   socket.on('message', (data) => {
+//     console.log('Received message:', data);
+//     io.emit('message', data); // Broadcast the message to all clients
+//   });
+
+//   socket.on('disconnect', () => {
+//     console.log('Client disconnected.');
+//   });
 // });
 
-io.on('connection', (socket) => {
-  console.log('New client connected.');
-
-  socket.emit('welcome', 'Welcome to the chat!');
-
-  socket.on('message', (data) => {
-    console.log('Received message:', data);
-    io.emit('message', data); // Broadcast the message to all clients
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected.');
-  });
-});
-
-server.listen(port, () => {
-  console.log(`Socket.IO server listening on port ${port}`);
-});
+//server.listen(port, () => {
+//   console.log(`Socket.IO server listening on port ${port}`);
+// });
